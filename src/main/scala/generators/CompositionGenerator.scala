@@ -16,8 +16,10 @@ object CompositionGenerator {
   type DimensionToImage = (Int, Int) => Image
   type Spot = ((Int, Int), Int, Int)
   
-  def coloredRectangle(color: Color): DimensionToImage =
+  def rectangleFactory(color: Color): DimensionToImage =
     RectangleFilled(color, _, _)
+  def canvasFactory: DimensionToImage =
+    rectangleFactory(Color.White)
   
   val defaultWidth = 400
   val defaultHeight = 500

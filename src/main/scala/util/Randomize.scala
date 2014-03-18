@@ -20,6 +20,18 @@ class Randomize[T](choiceAndPrev: List[(T, Int)]) {
     }
     pickT(choiceAndPrev)
   }
+  
+  def remove(): (T, Randomize[T]) = {
+    val pick = select()
+    (pick, this - pick)
+  }
+  
+  def +(newChoice: (T, Int)): Randomize[T] =
+    new Randomize(newChoice :: choiceAndPrev.filter(_._2 == newChoice._1))
+  
+  def -(choice: T): Randomize[T] = {
+    new Randomize(choiceAndPrev.filter(_._1 == choice))
+  }
 }
 
 object Randomize {
