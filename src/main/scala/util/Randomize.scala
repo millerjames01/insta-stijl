@@ -2,6 +2,7 @@ package util
 
 import org.dupontmanual.image._
 import scala.util.Random
+import scala.language.implicitConversions
 
 class Randomize[T](choiceAndPrev: List[(T, Int)]) {
   protected val containsNegPrev = (false /: choiceAndPrev)(_ | _._2 <= 0)
@@ -37,4 +38,12 @@ class Randomize[T](choiceAndPrev: List[(T, Int)]) {
 object Randomize {
   def apply[T](choiceAndPrev: (T, Int)*): Randomize[T] = 
     new Randomize(choiceAndPrev.toList)
+  
+  def apply[T](choiceAndPrev: List[(T, Int)]): Randomize[T] = 
+    new Randomize(choiceAndPrev)
+  
+  def equalProb[T](choices: List[T]): Randomize[T] =
+    new Randomize(choices map ((t: T) => (t, 1)))
+  
+  def equalProb[T](choices: T*): Randomize[T] = equalProb(choices.toList)  
 }
