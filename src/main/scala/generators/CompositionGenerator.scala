@@ -20,7 +20,7 @@ object CompositionGenerator {
     RectangleFilled(color, _, _)
   def canvasFactory: DimensionToImage =
     rectangleFactory(Color.White)
-  
+    
   val defaultWidth = 400
   val defaultHeight = 500
   val lineWidth = 10

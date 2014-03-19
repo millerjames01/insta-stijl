@@ -6,7 +6,7 @@ import scala.util.Random
 import CompositionGenerator.{ DimensionToImage, Spot , canvasFactory}
 import scala.language.implicitConversions
 
-class LinesGenerator(hgt: Int, wdt: Int, lnWdt: Int) {
+class LinesGenerator(wdt: Int, hgt: Int, lnWdt: Int) {
   if(hgt < 1 | wdt < 1 | lnWdt < 1) 
     throw new IllegalArgumentException("Values for height, width and line width must be positive.")
   
@@ -24,15 +24,26 @@ class LinesGenerator(hgt: Int, wdt: Int, lnWdt: Int) {
     linePlacer()
   }
   
-  def drawLines(spots: List[Spot]): Image = {
-    val canvas = canvasFactory(height, width)
+  def makeHorizontalLines(): List[Spot] = {
+    def linePlacer(place: Int = spacing.select, spots: List[Spot] = Nil): List[Spot] = {
+      if(height < 3 * lnWdt + place) spots
+      else linePlacer(place + spacing.select, ((0, place), wdt, lnWdt) :: spots)
+    }
+    linePlacer()
+  }
+  
+  def drawLines(spots: List[Spot], canvas: Image = canvasFactory(width, height)): Image = {
     def makeLine(spot: Spot) = RectangleFilled(Color.Black, spot._2, spot._3)
     def drawSpotOnCanvas(canvas: Image, spot: Spot): Image = 
-      canvas.placeImage(makeLine(spot), spot._1._1, spot._1._2)
+      canvas.placeImage(makeLine(spot), spot._1._1, spot._1._2, XAlign.Left, YAlign.Top)
     (canvas /: spots)(drawSpotOnCanvas)
   }
   
-  def demo = drawLines(makeVerticalLines)
+  def asImage: Image = {
+    val verts = makeVerticalLines
+    val hors = makeHorizontalLines
+    drawLines(verts ++ hors)
+  }
 }
 
 object LinesGenerator {
