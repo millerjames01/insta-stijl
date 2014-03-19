@@ -22,6 +22,7 @@ class Randomize[T](choiceAndPrev: List[(T, Int)]) {
     pickT(choiceAndPrev)
   }
   
+  // TODO: Test below this line
   def remove(): (T, Randomize[T]) = {
     val pick = select()
     (pick, this - pick)
@@ -42,6 +43,7 @@ object Randomize {
   def apply[T](choiceAndPrev: List[(T, Int)]): Randomize[T] = 
     new Randomize(choiceAndPrev)
   
+  // TODO: Test these
   def equalProb[T](choices: List[T]): Randomize[T] =
     new Randomize(choices map ((t: T) => (t, 1)))
   
