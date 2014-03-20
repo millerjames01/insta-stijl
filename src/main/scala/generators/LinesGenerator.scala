@@ -13,9 +13,11 @@ class LinesGenerator(wdt: Int, hgt: Int, lnWdt: Int) {
   def height = hgt
   def width = wdt
   def lineWidth = lnWdt
+  def canvas = canvasFactory(width, height)
+  
   
   // TODO: Pretty good. Could still improve spacing plans.
-  def spacing: Randomize[Int] = Randomize.equalProb((3 to (width / lineWidth) / 2).toList map (_ * lnWdt))
+  protected def spacing: Randomize[Int] = Randomize.equalProb((3 to (width / lineWidth) / 2).toList map (_ * lnWdt))
   
   protected def makeVerticalLines(): List[Spot] = {
     def linePlacer(place: Int = spacing.select, spots: List[Spot] = Nil): List[Spot] = {
@@ -25,7 +27,7 @@ class LinesGenerator(wdt: Int, hgt: Int, lnWdt: Int) {
     linePlacer().reverse
   }
   
-  def makeHorizontalLines(): List[Spot] = {
+  protected def makeHorizontalLines(): List[Spot] = {
     def linePlacer(place: Int = spacing.select, spots: List[Spot] = Nil): List[Spot] = {
       if(height < 3 * lnWdt + place) spots
       else linePlacer(place + spacing.select, ((0, place), wdt, lnWdt) :: spots)
@@ -33,7 +35,7 @@ class LinesGenerator(wdt: Int, hgt: Int, lnWdt: Int) {
     linePlacer().reverse
   }
   
-  def drawLines(spots: List[Spot], canvas: Image = canvasFactory(width, height)): Image = {
+  protected def drawLines(spots: List[Spot], canvas: Image = canvasFactory(width, height)): Image = {
     def makeLine(spot: Spot) = RectangleFilled(Color.Black, spot._2, spot._3)
     def drawSpotOnCanvas(canvas: Image, spot: Spot): Image = 
       canvas.placeImage(makeLine(spot), spot._1._1, spot._1._2, XAlign.Left, YAlign.Top)

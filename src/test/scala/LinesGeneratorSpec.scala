@@ -32,11 +32,11 @@ class LinesGeneratorSpec extends FunSuite with GivenWhenThen with PrivateMethodT
     val lineWidth = 15
     val lg = LinesGenerator(width, height, lineWidth)
     
-    val makeVerticalLines = PrivateMethod[List[Lines]]('makeVerticalLines)
+    val makeVerticalLines = PrivateMethod[Lines]('makeVerticalLines)
     
     type Lines = List[Spot]
     // TODO: Fix this.
-    val linesToTest = (1 to 10).toList map (lg invokePrivate makeVerticalLines())
+    val linesToTest = for(i <- (1 to 10).toList) yield (lg invokePrivate makeVerticalLines())
     val offCanvasLines: Lines = List(((width, 0), lineWidth, height))
     
     def sortedByX(lines: Lines): Boolean = {
@@ -71,10 +71,12 @@ class LinesGeneratorSpec extends FunSuite with GivenWhenThen with PrivateMethodT
   }
   
   test("Lines should be drawn according to position correctly") {
+    val drawLines = PrivateMethod[Image]('drawLines)
+    
     val lg = LinesGenerator(200, 200, 10)
     val someLines = List(((130,0),10,200), ((170,0),10,200)) ++ List(((0,30),200,10))
     val correctImage = Bitmap("./src/test/resources/lines-test-1.png")
-    val testImage = lg.drawLines(someLines)
+    val testImage = lg invokePrivate drawLines(someLines, lg.canvas)
     assert(testImage sameBitmapAs correctImage)
   }
 }
