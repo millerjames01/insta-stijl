@@ -1,12 +1,12 @@
 package test
 
-import org.scalatest.{FunSuite, GivenWhenThen}
+import org.scalatest.{FunSuite, GivenWhenThen, PrivateMethodTester}
 import org.dupontmanual.image._
 import generators.LinesGenerator
 import generators.CompositionGenerator.Spot
 import scala.language.implicitConversions
 
-class LinesGeneratorSpec extends FunSuite with GivenWhenThen {
+class LinesGeneratorSpec extends FunSuite with GivenWhenThen with PrivateMethodTester {
   test("Constructor should initiate values correctly.") {
     val lg = LinesGenerator(400, 600, 20)
     assert(lg.width == 400)
@@ -32,8 +32,11 @@ class LinesGeneratorSpec extends FunSuite with GivenWhenThen {
     val lineWidth = 15
     val lg = LinesGenerator(width, height, lineWidth)
     
+    val makeVerticalLines = PrivateMethod[List[Lines]]('makeVerticalLines)
+    
     type Lines = List[Spot]
-    val linesToTest: List[Lines] = (for(i <- (1 to 10).toList) yield lg.makeVerticalLines)
+    // TODO: Fix this.
+    val linesToTest = (1 to 10).toList map (lg invokePrivate makeVerticalLines())
     val offCanvasLines: Lines = List(((width, 0), lineWidth, height))
     
     def sortedByX(lines: Lines): Boolean = {
@@ -70,6 +73,8 @@ class LinesGeneratorSpec extends FunSuite with GivenWhenThen {
   test("Lines should be drawn according to position correctly") {
     val lg = LinesGenerator(200, 200, 10)
     val someLines = List(((130,0),10,200), ((170,0),10,200)) ++ List(((0,30),200,10))
-    val file = new java.io.File("../resources/lines-test-1.png")
+    val correctImage = Bitmap("./src/test/resources/lines-test-1.png")
+    val testImage = lg.drawLines(someLines)
+    assert(testImage sameBitmapAs correctImage)
   }
 }

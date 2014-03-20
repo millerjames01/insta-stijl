@@ -15,6 +15,7 @@ class CompositionGenerator(height: Int, width: Int,
 object CompositionGenerator {
   type DimensionToImage = (Int, Int) => Image
   type Spot = ((Int, Int), Int, Int)
+  type Grid = List[Spot]
   
   def rectangleFactory(color: Color): DimensionToImage =
     RectangleFilled(color, _, _)

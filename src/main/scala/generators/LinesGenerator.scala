@@ -3,7 +3,7 @@ package generators
 import org.dupontmanual.image._
 import util.Randomize
 import scala.util.Random
-import CompositionGenerator.{ DimensionToImage, Spot , canvasFactory}
+import CompositionGenerator.{ DimensionToImage, Spot, Grid, canvasFactory}
 import scala.language.implicitConversions
 
 class LinesGenerator(wdt: Int, hgt: Int, lnWdt: Int) {
@@ -14,10 +14,10 @@ class LinesGenerator(wdt: Int, hgt: Int, lnWdt: Int) {
   def width = wdt
   def lineWidth = lnWdt
   
-  // TODO: Get a more scientific method of spacing
-  def spacing: Randomize[Int] = Randomize.equalProb((3 to 30).toList map (_ * lnWdt))
+  // TODO: Pretty good. Could still improve spacing plans.
+  def spacing: Randomize[Int] = Randomize.equalProb((3 to (width / lineWidth) / 2).toList map (_ * lnWdt))
   
-  def makeVerticalLines(): List[Spot] = {
+  protected def makeVerticalLines(): List[Spot] = {
     def linePlacer(place: Int = spacing.select, spots: List[Spot] = Nil): List[Spot] = {
       if(width < 3 * lnWdt + place) spots
       else linePlacer(place + spacing.select, ((place, 0), lnWdt, hgt) :: spots)
@@ -44,6 +44,14 @@ class LinesGenerator(wdt: Int, hgt: Int, lnWdt: Int) {
     val verts = makeVerticalLines
     val hors = makeHorizontalLines
     drawLines(verts ++ hors)
+  }
+  
+  def makeGrid(vertLines: List[Spot], horLines: List[Spot]): Grid = {
+    Nil
+  }
+  
+  def grid: Grid = {
+    Nil
   }
 }
 
