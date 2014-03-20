@@ -33,7 +33,8 @@ class LinesGeneratorSpec extends FunSuite with GivenWhenThen {
     val lg = LinesGenerator(width, height, lineWidth)
     
     type Lines = List[Spot]
-    val linesToTest: List[Lines] = for(i <- (1 to 10).toList) yield lg.makeVerticalLines
+    val linesToTest: List[Lines] = (for(i <- (1 to 10).toList) yield lg.makeVerticalLines)
+    val offCanvasLines: Lines = List(((width, 0), lineWidth, height))
     
     def sortedByX(lines: Lines): Boolean = {
       def lessThanNext(lastX: Int = lineWidth - 1, linesToTest: Lines = lines): Boolean = linesToTest match {
@@ -50,21 +51,25 @@ class LinesGeneratorSpec extends FunSuite with GivenWhenThen {
     def onCanvas(lines: Lines): Boolean = {
       def isOnCanvas(line: Spot) = {
         val ((x, y), w, h) = line
-        0 <= x & x <= width - lineWidth & 0 == y & h == height
+        lineWidth <= x & x <= width - lineWidth & 0 == y & h == height
       }
       lines forall (isOnCanvas(_))
     }
     
     val testResults = linesToTest map (ls => (sortedByX(ls), onCanvas(ls)))
-    val allSorted = (true /: testResults)(_ | _._1)
-    val allOn = (true /: testResults)(_ | _._2)
+    val allSorted = (true /: testResults)(_ & _._1)
+    val allOn = (true /: testResults)(_ & _._2)
     info("sorted by ascending x values")
     assert(allSorted)
+    assert(!sortedByX(linesToTest.head.reverse))
     info("all striping the canvas")
     assert(allOn)
+    assert(!onCanvas(offCanvasLines))
   }
   
   test("Lines should be drawn according to position correctly") {
-    
+    val lg = LinesGenerator(200, 200, 10)
+    val someLines = List(((130,0),10,200), ((170,0),10,200)) ++ List(((0,30),200,10))
+    val file = new java.io.File("../resources/lines-test-1.png")
   }
 }

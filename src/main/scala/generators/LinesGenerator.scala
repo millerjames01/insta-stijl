@@ -14,6 +14,7 @@ class LinesGenerator(wdt: Int, hgt: Int, lnWdt: Int) {
   def width = wdt
   def lineWidth = lnWdt
   
+  // TODO: Get a more scientific method of spacing
   def spacing: Randomize[Int] = Randomize.equalProb((3 to 30).toList map (_ * lnWdt))
   
   def makeVerticalLines(): List[Spot] = {
@@ -21,7 +22,7 @@ class LinesGenerator(wdt: Int, hgt: Int, lnWdt: Int) {
       if(width < 3 * lnWdt + place) spots
       else linePlacer(place + spacing.select, ((place, 0), lnWdt, hgt) :: spots)
     }
-    linePlacer()
+    linePlacer().reverse
   }
   
   def makeHorizontalLines(): List[Spot] = {
@@ -29,7 +30,7 @@ class LinesGenerator(wdt: Int, hgt: Int, lnWdt: Int) {
       if(height < 3 * lnWdt + place) spots
       else linePlacer(place + spacing.select, ((0, place), wdt, lnWdt) :: spots)
     }
-    linePlacer()
+    linePlacer().reverse
   }
   
   def drawLines(spots: List[Spot], canvas: Image = canvasFactory(width, height)): Image = {
