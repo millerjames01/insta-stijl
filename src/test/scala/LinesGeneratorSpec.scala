@@ -26,48 +26,82 @@ class LinesGeneratorSpec extends FunSuite with GivenWhenThen with PrivateMethodT
     }
   }
   
-  test("Generated vertical lines spots should be") {
+  test("Generated lines requirements") {
     val width = 800
     val height = 600
     val lineWidth = 15
     val lg = LinesGenerator(width, height, lineWidth)
     
     val makeVerticalLines = PrivateMethod[Lines]('makeVerticalLines)
+    val makeHorizontalLines = PrivateMethod[Lines]('makeHorizontalLines)
     
+    sealed abstract class Axis {
+      def getFromLine(line: Spot): Int
+      def linePlacementCheck(line: Spot): Boolean
+    }
+    case object X extends Axis {
+      def getFromLine(line: Spot) = line._1._1
+      def linePlacementCheck(line: Spot): Boolean = {
+        val ((x, y), w, h) = line
+        lineWidth <= x & x <= width - lineWidth & 0 == y & h == height
+      }
+    }
+    case object Y extends Axis {
+      def getFromLine(line: Spot) = line._1._2
+      def linePlacementCheck(line: Spot) = {
+        val ((x, y), w, h) = line
+        lineWidth <= y & y <= height - lineWidth & 0 == x & w == width
+      }
+    }
     type Lines = List[Spot]
-    // TODO: Fix this.
-    val linesToTest = for(i <- (1 to 10).toList) yield (lg invokePrivate makeVerticalLines())
+    val linesToTestX = for(i <- (1 to 10).toList) yield (lg invokePrivate makeVerticalLines())
     val offCanvasLines: Lines = List(((width, 0), lineWidth, height))
+    val linesToTestY = for(i <- (1 to 10).toList) yield (lg invokePrivate makeHorizontalLines())
     
-    def sortedByX(lines: Lines): Boolean = {
-      def lessThanNext(lastX: Int = lineWidth - 1, linesToTest: Lines = lines): Boolean = linesToTest match {
+    def sortedByPos(lines: Lines, axis: Axis): Boolean = {
+      def lessThanNext(lastPos: Int = lineWidth - 1, linesToTest: Lines = lines): Boolean = linesToTest match {
         case Nil => true
         case line :: rest => {
-          val currentX = line._1._1
-          if(lastX + lineWidth >= currentX) false
-          else lessThanNext(currentX, rest)
+          val currentPos = axis.getFromLine(line)
+          if(lastPos + lineWidth >= currentPos) false 
+          else lessThanNext(currentPos, rest)
         }
       }
       lessThanNext()
     }
     
-    def onCanvas(lines: Lines): Boolean = {
+    def onCanvas(lines: Lines, axis: Axis): Boolean = {
       def isOnCanvas(line: Spot) = {
         val ((x, y), w, h) = line
-        lineWidth <= x & x <= width - lineWidth & 0 == y & h == height
+        axis.linePlacementCheck(line)
       }
       lines forall (isOnCanvas(_))
     }
     
-    val testResults = linesToTest map (ls => (sortedByX(ls), onCanvas(ls)))
-    val allSorted = (true /: testResults)(_ & _._1)
-    val allOn = (true /: testResults)(_ & _._2)
+    val testResultsX = linesToTestX map (ls => (sortedByPos(ls, X), onCanvas(ls, X)))
+    val allSortedX = (true /: testResultsX)(_ & _._1)
+    val allOnX = (true /: testResultsX)(_ & _._2)
+    val smallSizeX = linesToTestX.head.size == 0 | linesToTestX.head.size == 1
+    info("Vertical lines should be")
     info("sorted by ascending x values")
-    assert(allSorted)
-    assert(!sortedByX(linesToTest.head.reverse))
-    info("all striping the canvas")
-    assert(allOn)
-    assert(!onCanvas(offCanvasLines))
+    assert(allSortedX)
+    assert(smallSizeX | !sortedByPos(linesToTestX.head.reverse, X))
+    info("all striping the canvas vertically")
+    assert(allOnX)
+    assert(!onCanvas(offCanvasLines, X))
+    
+    
+    val testResultsY = linesToTestY map (ls => (sortedByPos(ls, Y), onCanvas(ls, Y)))
+    val allSortedY = (true /: testResultsY) (_ & _._1)
+    val allOnY = (true /: testResultsY) (_ & _._2)
+    val smallSizeY = linesToTestY.head.size == 0 | linesToTestY.head.size == 1
+    info("Horizontal lines should be")
+    info("sorted by ascending y values")
+    assert(allSortedY)
+    assert(smallSizeY | !sortedByPos(linesToTestY.head.reverse, Y))
+    info("all striping the canvas horizontally")
+    assert(allOnY)
+    assert(!onCanvas(offCanvasLines, Y))
   }
   
   test("Lines should be drawn according to position correctly") {
@@ -78,5 +112,10 @@ class LinesGeneratorSpec extends FunSuite with GivenWhenThen with PrivateMethodT
     val correctImage = Bitmap("./src/test/resources/lines-test-1.png")
     val testImage = lg invokePrivate drawLines(someLines, lg.canvas)
     assert(testImage sameBitmapAs correctImage)
+  }
+  
+  test("Grids should be built appropriately") {
+    info("Vertical lines should make a grid")
+    
   }
 }

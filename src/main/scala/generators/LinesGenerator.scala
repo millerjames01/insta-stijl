@@ -14,6 +14,7 @@ class LinesGenerator(wdt: Int, hgt: Int, lnWdt: Int) {
   def width = wdt
   def lineWidth = lnWdt
   def canvas = canvasFactory(width, height)
+  protected def initialSpot = ((0, 0), width, height)
   
   
   // TODO: Pretty good. Could still improve spacing plans.
@@ -42,18 +43,24 @@ class LinesGenerator(wdt: Int, hgt: Int, lnWdt: Int) {
     (canvas /: spots)(drawSpotOnCanvas)
   }
   
-  def asImage: Image = {
+  def makeGridOfVerticals(vertLines: List[Spot], toSplit: Spot = initialSpot, currGrid: Grid = Nil): Grid = vertLines match {
+    case Nil => toSplit :: currGrid
+    case line :: rest => {
+      val definiteSpot = (toSplit._1, line._1._1 - toSplit._1._1, toSplit._3)
+      val nextToSplit = (((line._1._1 + line._2), 0), width - (line._1._1 + line._2), toSplit._3)
+      makeGridOfVerticals(rest, nextToSplit, definiteSpot :: currGrid)
+    }
+  } 
+  
+  // TODO: This is a stub
+  def makeGrid(vertLines: List[Spot], horLines: List[Spot], toSplit: Spot = initialSpot): Grid = {
+    Nil
+  }
+  
+  def generate: (Image, Grid) = {
     val verts = makeVerticalLines
     val hors = makeHorizontalLines
-    drawLines(verts ++ hors)
-  }
-  
-  def makeGrid(vertLines: List[Spot], horLines: List[Spot]): Grid = {
-    Nil
-  }
-  
-  def grid: Grid = {
-    Nil
+    (drawLines(verts ++ hors), makeGrid(verts, hors))
   }
 }
 
