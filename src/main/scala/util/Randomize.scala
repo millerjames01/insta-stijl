@@ -11,7 +11,7 @@ class Randomize[T](choiceAndPrev: List[(T, Int)]) {
   if(containsNegPrev) 
     throw new IllegalArgumentException("Prevalence for any choice cannot be an integer less than 0.")
   if(totalPrev == 0) 
-    throw new IllegalArgumentException("One choice must have a prevalence greater than 0.")
+    throw new IllegalArgumentException(s"One choice must have a prevalence greater than 0.\n$choiceAndPrev")
   
   def select(): T = {
     def pickT(choices: List[(T, Int)], skip: Int = Random.nextInt(totalPrev)): T = {

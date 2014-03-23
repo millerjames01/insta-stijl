@@ -17,21 +17,32 @@ class LinesGenerator(wdt: Int, hgt: Int, lnWdt: Int) {
   protected def initialSpot = ((0, 0), width, height)
   
   
+  sealed abstract class Dimension
+  case object Horizontal extends Dimension
+  case object Vertical extends Dimension
   // TODO: Pretty good. Could still improve spacing plans.
-  protected def spacing: Randomize[Int] = Randomize.equalProb((3 to (width / lineWidth) / 2).toList map (_ * lnWdt))
+  protected def spacing(dim: Dimension): Randomize[Int] = {
+    val bound = dim match {
+      case Vertical => width
+      case Horizontal => height
+    }
+    val lineOptions = (3 to (bound / lineWidth) / 2).toList map (_ * lnWdt)
+    if(lineOptions == Nil) Randomize.equalProb(width + 1)
+    else Randomize.equalProb(lineOptions)
+  }
   
   protected def makeVerticalLines(): List[Spot] = {
-    def linePlacer(place: Int = spacing.select, spots: List[Spot] = Nil): List[Spot] = {
+    def linePlacer(place: Int = spacing(Vertical).select, spots: List[Spot] = Nil): List[Spot] = {
       if(width < 3 * lnWdt + place) spots
-      else linePlacer(place + spacing.select, ((place, 0), lnWdt, hgt) :: spots)
+      else linePlacer(place + spacing(Vertical).select, ((place, 0), lnWdt, hgt) :: spots)
     }
     linePlacer().reverse
   }
   
   protected def makeHorizontalLines(): List[Spot] = {
-    def linePlacer(place: Int = spacing.select, spots: List[Spot] = Nil): List[Spot] = {
+    def linePlacer(place: Int = spacing(Horizontal).select, spots: List[Spot] = Nil): List[Spot] = {
       if(height < 3 * lnWdt + place) spots
-      else linePlacer(place + spacing.select, ((0, place), wdt, lnWdt) :: spots)
+      else linePlacer(place + spacing(Horizontal).select, ((0, place), wdt, lnWdt) :: spots)
     }
     linePlacer().reverse
   }
@@ -79,4 +90,6 @@ class LinesGenerator(wdt: Int, hgt: Int, lnWdt: Int) {
 object LinesGenerator {
   def apply(hgt: Int, wdt: Int, lnWdt: Int): LinesGenerator = 
     new LinesGenerator(hgt, wdt, lnWdt)
+  
+  
 }
