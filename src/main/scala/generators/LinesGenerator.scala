@@ -43,18 +43,30 @@ class LinesGenerator(wdt: Int, hgt: Int, lnWdt: Int) {
     (canvas /: spots)(drawSpotOnCanvas)
   }
   
-  def makeGridOfVerticals(vertLines: List[Spot], toSplit: Spot = initialSpot, currGrid: Grid = Nil): Grid = vertLines match {
-    case Nil => toSplit :: currGrid
+  protected def makeGridOfVerticals(vertLines: List[Spot], toSplit: Spot = initialSpot, currGrid: Grid = Nil): Grid = vertLines match {
+    case Nil => (toSplit :: currGrid).reverse
     case line :: rest => {
       val definiteSpot = (toSplit._1, line._1._1 - toSplit._1._1, toSplit._3)
       val nextToSplit = (((line._1._1 + line._2), 0), width - (line._1._1 + line._2), toSplit._3)
       makeGridOfVerticals(rest, nextToSplit, definiteSpot :: currGrid)
     }
   } 
+ 
+  // TODO: Test this more
+  protected def overlayHorizontals(horLines: List[Spot], gridToSplit: Grid, newGrid: Grid = Nil): Grid = horLines match {
+    case Nil => (newGrid ++ gridToSplit)
+    case line :: rest => {
+      val definiteSpots = gridToSplit map (spot => (spot._1, spot._2, line._1._2 - spot._1._2))
+      val nextGridToSplit = gridToSplit map (spot => 
+        ((spot._1._1, line._1._2 + line._3), spot._2, height - (line._1._2 + line._3)))
+      overlayHorizontals(rest, nextGridToSplit, newGrid ++ definiteSpots)
+    }
+  }
   
   // TODO: This is a stub
-  def makeGrid(vertLines: List[Spot], horLines: List[Spot], toSplit: Spot = initialSpot): Grid = {
-    Nil
+  def makeGrid(vertLines: List[Spot], horLines: List[Spot]): Grid = {
+    val vertGrid = makeGridOfVerticals(vertLines)
+    overlayHorizontals(horLines, vertGrid)
   }
   
   def generate: (Image, Grid) = {

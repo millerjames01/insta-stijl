@@ -3,7 +3,7 @@ package test
 import org.scalatest.{FunSuite, GivenWhenThen, PrivateMethodTester}
 import org.dupontmanual.image._
 import generators.LinesGenerator
-import generators.CompositionGenerator.Spot
+import generators.CompositionGenerator.{ Spot, Grid }
 import scala.language.implicitConversions
 
 class LinesGeneratorSpec extends FunSuite with GivenWhenThen with PrivateMethodTester {
@@ -115,7 +115,20 @@ class LinesGeneratorSpec extends FunSuite with GivenWhenThen with PrivateMethodT
   }
   
   test("Grids should be built appropriately") {
-    info("Vertical lines should make a grid")
+    info("Vertical lines should make a grid") 
+    val makeGridOfVerticals = PrivateMethod[Grid]('makeGridOfVerticals)
     
+    val lg = LinesGenerator(300, 300, 15)
+    val initialSpot = ((0, 0), 300, 300)
+    val noLines = lg invokePrivate makeGridOfVerticals(Nil, initialSpot, Nil)
+    val oneLine = lg invokePrivate makeGridOfVerticals(List(((150, 0), 15, 300)), initialSpot, Nil)
+    assert(noLines == List(initialSpot)) 
+    assert(oneLine == List(((0, 0), 150, 300), ((165, 0), 135, 300)))
+    
+    info("Horizontal lines should overlay those lines")
+    val overlayHorizontals = PrivateMethod[Grid]('overlayHorizontals)
+    val addToOneLine = lg invokePrivate overlayHorizontals(List(((0, 100), 300, 15)), oneLine, Nil)
+    assert(addToOneLine == List(((0, 0), 150, 100), ((165, 0), 135, 100),
+    						    ((0, 115), 150, 185), ((165, 115), 135, 185)))
   }
 }
