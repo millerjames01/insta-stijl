@@ -10,7 +10,10 @@ class CompositionGenerator(width: Int, height: Int, lineWidth: Int, randomImage:
 
   def generate: Image = {
     val (img, grd) = lineGenerator.generate
-    
+    fillIn(img, grd)
+  }
+  
+  protected def fillIn(img: Image, grd: Grid): Image = {
     (img /: grd)((currImage, spot) => {
       val (x, y) = spot._1
       val selectedImage = randomImage.select()(spot._2, spot._3)
@@ -27,6 +30,10 @@ object CompositionGenerator {
   def apply(width: Int, height: Int, lineWidth: Int, randomImage: Randomize[DimensionToImage]) = 
     new CompositionGenerator(width, height, lineWidth, randomImage)
   
+  // if the image randomize is not used.
+  def apply(width: Int, height: Int, lineWidth: Int) = 
+    new CompositionGenerator(width, height, lineWidth, Randomize.equalProb(canvasFactory))
+  
   def rectangleFactory(color: Color): DimensionToImage =
     RectangleFilled(color, _, _)
   def canvasFactory: DimensionToImage =
@@ -37,13 +44,6 @@ object CompositionGenerator {
     val blueRects = rectangleFactory(Color(52, 109, 162))
     val yellowRects = rectangleFactory(Color(223,183,0))
     Randomize((canvasFactory, 20), (redRects, 2), (blueRects, 2), (yellowRects, 1))
-  }
-  
-  def alternateShapes: Randomize[DimensionToImage] = {
-    val green = rectangleFactory(Color(157, 232, 135))
-    val pink = rectangleFactory(Color(240, 144, 149))
-    val brown = rectangleFactory(Color(146, 98, 57))
-    Randomize((canvasFactory, 20), (green, 2), (pink, 2), (brown, 1))
   }
   
   def recursiveShapes(lineWidth: Int): Randomize[DimensionToImage] = {

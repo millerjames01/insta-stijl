@@ -5,7 +5,7 @@ import scala.util.Random
 import scala.language.implicitConversions
 
 class Randomize[T](choiceAndPrev: List[(T, Int)]) {
-  protected val containsNegPrev = (false /: choiceAndPrev)(_ | _._2 <= 0)
+  protected val containsNegPrev = (false /: choiceAndPrev)(_ | _._2 < 0)
   protected val totalPrev = (0 /: choiceAndPrev)(_ + _._2)
   
   if(containsNegPrev) 
@@ -29,10 +29,10 @@ class Randomize[T](choiceAndPrev: List[(T, Int)]) {
   }
   
   def +(newChoice: (T, Int)): Randomize[T] =
-    new Randomize(newChoice :: choiceAndPrev.filter(_._2 == newChoice._1))
+    new Randomize(newChoice :: choiceAndPrev.filter(_._1 == newChoice._1))
   
   def -(choice: T): Randomize[T] = {
-    new Randomize(choiceAndPrev.filter(_._1 == choice))
+    new Randomize(choiceAndPrev.filter(_._1 != choice))
   }
 }
 

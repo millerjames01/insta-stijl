@@ -26,7 +26,7 @@ class LinesGenerator(wdt: Int, hgt: Int, lnWdt: Int) {
       case Vertical => width
       case Horizontal => height
     }
-    val lineOptions = (3 to (bound / lineWidth) / 2).toList map (_ * lnWdt)
+    val lineOptions = (3 to (bound / lineWidth) / 3).toList map (_ * lnWdt)
     if(lineOptions == Nil) Randomize.equalProb(width + 1)
     else Randomize.equalProb(lineOptions)
   }
