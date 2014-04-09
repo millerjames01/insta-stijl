@@ -29,7 +29,7 @@ class Randomize[T](choiceAndPrev: List[(T, Int)]) {
   }
   
   def +(newChoice: (T, Int)): Randomize[T] =
-    new Randomize(newChoice :: choiceAndPrev.filter(_._1 == newChoice._1))
+    new Randomize(newChoice :: choiceAndPrev.filter(_._1 != newChoice._1))
   
   def -(choice: T): Randomize[T] = {
     new Randomize(choiceAndPrev.filter(_._1 != choice))
