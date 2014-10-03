@@ -29,10 +29,6 @@ A necessity for running this project is to have [sbt](http://www.scala-sbt.org/r
     
 Everything should be up and running from there.
 
-## API Reference
-
-This is a work-in-progress. Once I present this to my humanities class, I should have a lot more time to document, so coming soon!
-
 ## Tests
 
 If you check to see some of the newer commit messages, and look at the comments, you can see I'm a little behind in testing. Sorry!
