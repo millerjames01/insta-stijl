@@ -31,9 +31,7 @@ Everything should be up and running from there.
 
 ## Tests
 
-If you check to see some of the newer commit messages, and look at the comments, you can see I'm a little behind in testing. Sorry!
-
-However, the most fundamental parts of the project are tested fairly well, using the `scalatest` package. To run these tests and any tests (in the `test` package), it should be as simple as
+The project is well tested, using the `scalatest` package. To run these tests and any tests (in the `test` package), it should be as simple as
 
     $ sbt
     > test
